@@ -1,6 +1,7 @@
 ﻿using ITfoxtec.Identity.Saml2.Tokens;
 using System;
 using System.Linq;
+using System.IO;
 using System.Security.Claims;
 using System.Xml;
 using System.Security.Cryptography.X509Certificates;
@@ -9,9 +10,11 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Xml.Linq;
 #if NETFULL
+using System.IdentityModel.Xml;
 using System.IdentityModel.Tokens;
 using System.IdentityModel.Protocols.WSTrust;
 #else
+using Microsoft.IdentityModel.Xml;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Tokens.Saml2;
 #endif
@@ -344,7 +347,7 @@ namespace ITfoxtec.Identity.Saml2
 #else
         private Saml2SecurityToken ReadSecurityToken(string tokenString)
         {
-            return Saml2SecurityTokenHandler.ReadSaml2Token(tokenString);
+            return Saml2SecurityTokenHandler.ReadSaml2Token(new MultiSignatureEnvelopedSignatureReader(XmlReader.Create(new StringReader(tokenString), new XmlReaderSettings() { XmlResolver = null })));
         }
 
         private ClaimsIdentity ReadClaimsIdentity(string tokenString, bool detectReplayedTokens)
